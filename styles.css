@@ -1,0 +1,147 @@
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  width: 340px;
+  padding: 0;
+  margin: 0;
+  background-color: #f5f8fa;
+  color: #14171a;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  padding: 15px;
+}
+
+h2 {
+  margin: 0;
+  color: #333;
+  text-align: center;
+  font-size: 18px;
+}
+
+/* Tabs */
+.tabs {
+  display: flex;
+  border-bottom: 2px solid #e1e8ed;
+  margin-bottom: 10px;
+}
+
+.tab-btn {
+  flex: 1;
+  background: none;
+  border: none;
+  padding: 10px;
+  cursor: pointer;
+  font-weight: 600;
+  color: #657786;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+}
+
+.tab-btn.active {
+  color: #1da1f2;
+  border-bottom-color: #1da1f2;
+}
+
+.tab-btn[data-tab="instagram"].active {
+  color: #e1306c;
+  border-bottom-color: #e1306c;
+}
+
+.tab-content {
+  display: none;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.tab-content.active {
+  display: flex;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.options-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.checkbox-group {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  background: white;
+  padding: 8px;
+  border-radius: 6px;
+  border: 1px solid #e1e8ed;
+}
+
+label {
+  font-weight: 600;
+  font-size: 12px;
+}
+
+input[type="text"],
+input[type="number"],
+input[type="password"] {
+  padding: 8px;
+  border: 1px solid #e1e8ed;
+  border-radius: 4px;
+  font-size: 13px;
+}
+
+.controls {
+  display: flex;
+  gap: 10px;
+  margin-top: 5px;
+}
+
+.btn {
+  flex: 1;
+  padding: 10px;
+  border: none;
+  border-radius: 20px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: opacity 0.2s;
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.primary {
+  background-color: #1da1f2;
+  color: white;
+}
+
+/* Color dinámico vía JS se verá mejor, pero por defecto azul */
+
+.danger {
+  background-color: #e0245e;
+  color: white;
+}
+
+.status {
+  font-size: 11px;
+  text-align: center;
+  color: #657786;
+  padding: 8px;
+  background: white;
+  border-radius: 4px;
+  min-height: 15px;
+  border: 1px solid #e1e8ed;
+}
+
+.global-config {
+  border-top: 1px solid #e1e8ed;
+  padding-top: 10px;
+}

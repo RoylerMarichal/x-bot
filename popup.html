@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>X-Bot Config</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container">
+    <h2>X-Bot 🤖</h2>
+    
+    <div class="form-group">
+      <label>Hashtag (sin #):</label>
+      <input type="text" id="hashtag" placeholder="ej. javascript">
+    </div>
+    
+    <div class="form-group">
+      <label>Intervalo (segundos):</label>
+      <input type="number" id="interval" min="2" value="5">
+    </div>
+
+    <div class="options-grid">
+       <div class="checkbox-group">
+          <input type="checkbox" id="enableComments">
+          <label for="enableComments">Activar Comentarios IA</label>
+       </div>
+       <div class="checkbox-group">
+          <input type="checkbox" id="enableFollow">
+          <label for="enableFollow">Seguir Autor</label>
+       </div>
+    </div>
+
+    <div class="form-group" id="apiKeyContainer">
+      <label>OpenAI API Key:</label>
+      <input type="password" id="apiKey" placeholder="sk-..." autocomplete="off">
+    </div>
+
+    <div class="status" id="statusMessage">Listo para iniciar</div>
+
+    <div class="controls">
+      <button id="btnStart" class="btn primary">Iniciar X-Bot</button>
+      <button id="btnStop" class="btn danger" disabled>Detener</button>
+    </div>
+  </div>
+  <script src="popup.js"></script>
+</body>
+</html>
