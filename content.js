@@ -71,7 +71,7 @@ async function generateAIComment(text) {
       body: JSON.stringify({
         model: "gpt-3.5-turbo",
         messages: [
-          { role: "system", content: "Actúa como un usuario genuino de Twitter. CONTEXTO: Eres fan de 'FounderLog.club' (espacio para emprendedores donde refinas tu juicio y conviertes notas en micro-acciones de ejecución; la alternativa al ruido de X y el postureo de LinkedIn). \nREGLAS:\n1. IDENTIFICA el idioma del tweet y responde SIEMPRE en ese mismo idioma.\n2. Si ves oportunidad (temas de emprendimiento, productividad, foco, notas), menciona sutil y naturalmente a FounderLog.\n3. Si no hay oportunidad de mención, solo aporta valor o sé gracioso.\n4. Si el tweet no es interesante, responde 'SKIP'.\n5. Breve (máx 20 palabras). Tono casual. NO hashtags." },
+          { role: "system", content: "Actúa como un usuario genuino de X.\nCONTEXTO: eres miembro activo de FounderLog.club, el espacio privado donde los fundadores documentan notas, quotes, links y micro-acciones para refinar su criterio y ejecutar sin ruido. Allí organizas colecciones públicas/privadas, sigues a otros fundadores para ver qué guardan realmente y conviertes apuntes como \"Habla con clientes\" en recordatorios accionables gracias al Micro-Action Engine.\nREGLAS:\n1. Detecta el idioma del post y responde SIEMPRE en ese mismo idioma.\n2. Antes de responder, evalúa si el post tiene calidad (aprendizaje real, reflexión útil, experiencia concreta o pregunta honesta). Si no, responde exactamente 'SKIP'.\n3. Solo comenta si puedes aportar criterio accionable; límite 20 palabras, tono casual, sin hashtags.\n4. Cuando el tema toque ejecución, foco, productividad, notas o aprendizaje entre fundadores, menciona de forma natural FounderLog.club destacando que es el lugar donde los fundadores guardan lo que realmente valoran, organizan colecciones y activan micro-acciones.\n5. Nada de comillas, ni invites a DM, ni uses emojis forzados." },
           { role: "user", content: `Tweet: "${text}"` }
         ],
         max_tokens: 60
@@ -109,75 +109,81 @@ async function runTwitterLoop() {
       target.scrollIntoView({ behavior: 'smooth', block: 'center' });
       await wait(1000);
 
-      // 1. LIKE
-      const likeBtn = target.querySelector('[data-testid="like"]');
-      if (likeBtn) {
-        likeBtn.click();
-        state.stats.likes++;
-        updateStatus("Like ❤️");
-        await wait(1000);
-      }
+      const alreadyLiked = !!target.querySelector('[data-testid="unlike"]');
 
-      // 2. FOLLOW (Si está habilitado)
-      if (state.config.follow) {
-        const userLink = target.querySelector('[data-testid="User-Name"] a');
-        if (userLink) {
-          // Hover para mostrar card de usuario
-          updateStatus("Check follow...");
-          userLink.dispatchEvent(new MouseEvent('mouseover', { bubbles: true }));
-          await wait(2500); // Esperar popup
-          
-          // Buscar botón seguir en el documento (el popup se renderiza en portal)
-          const followBtn = Array.from(document.querySelectorAll('[role="button"]'))
-            .find(b => {
-               const txt = b.innerText.toLowerCase();
-               return txt === 'follow' || txt === 'seguir';
-            });
-            
-          if (followBtn) {
-            followBtn.click();
-            state.stats.follows++;
-            updateStatus("Seguido ➕");
-            await wait(1000);
-          }
-          // Quitar hover
-          userLink.dispatchEvent(new MouseEvent('mouseout', { bubbles: true }));
+      if (alreadyLiked) {
+        updateStatus("Saltando post ya likeado 👍");
+      } else {
+        // 1. LIKE
+        const likeBtn = target.querySelector('[data-testid="like"]');
+        if (likeBtn) {
+          likeBtn.click();
+          state.stats.likes++;
+          updateStatus("Like ❤️");
+          await wait(1000);
         }
-      }
 
-      // 3. COMMENT (Si está habilitado y hay API Key)
-      if (state.config.comments && state.apiKey) {
-         const txtElement = target.querySelector('[data-testid="tweetText"]');
-         if (txtElement) {
-           const txt = txtElement.innerText;
-           updateStatus("Pensando 🧠...");
-           
-           const comment = await generateAIComment(txt);
-           
-           if (comment) {
-             const replyBtn = target.querySelector('[data-testid="reply"]');
-             if (replyBtn) {
-               replyBtn.click();
-               await wait(2000);
-               
-               // Editor de respuesta
-               const editor = document.querySelector('[data-testid="tweetTextarea_0"]');
-               if (editor) {
-                 editor.focus();
-                 document.execCommand('insertText', false, comment);
-                 await wait(1000);
+        // 2. FOLLOW (Si está habilitado)
+        if (state.config.follow) {
+          const userLink = target.querySelector('[data-testid="User-Name"] a');
+          if (userLink) {
+            // Hover para mostrar card de usuario
+            updateStatus("Check follow...");
+            userLink.dispatchEvent(new MouseEvent('mouseover', { bubbles: true }));
+            await wait(2500); // Esperar popup
+            
+            // Buscar botón seguir en el documento (el popup se renderiza en portal)
+            const followBtn = Array.from(document.querySelectorAll('[role="button"]'))
+              .find(b => {
+                 const txt = b.innerText.toLowerCase();
+                 return txt === 'follow' || txt === 'seguir';
+              });
+              
+            if (followBtn) {
+              followBtn.click();
+              state.stats.follows++;
+              updateStatus("Seguido ➕");
+              await wait(1000);
+            }
+            // Quitar hover
+            userLink.dispatchEvent(new MouseEvent('mouseout', { bubbles: true }));
+          }
+        }
+
+        // 3. COMMENT (Si está habilitado y hay API Key)
+        if (state.config.comments && state.apiKey) {
+           const txtElement = target.querySelector('[data-testid="tweetText"]');
+           if (txtElement) {
+             const txt = txtElement.innerText;
+             updateStatus("Pensando 🧠...");
+             
+             const comment = await generateAIComment(txt);
+             
+             if (comment) {
+               const replyBtn = target.querySelector('[data-testid="reply"]');
+               if (replyBtn) {
+                 replyBtn.click();
+                 await wait(2000);
                  
-                 const sendBtn = document.querySelector('[data-testid="tweetButton"]');
-                 if (sendBtn) {
-                    sendBtn.click();
-                    state.stats.comments++;
-                    updateStatus("Comentado 💬");
-                    await wait(2000);
+                 // Editor de respuesta
+                 const editor = document.querySelector('[data-testid="tweetTextarea_0"]');
+                 if (editor) {
+                   editor.focus();
+                   document.execCommand('insertText', false, comment);
+                   await wait(1000);
+                   
+                   const sendBtn = document.querySelector('[data-testid="tweetButton"]');
+                   if (sendBtn) {
+                      sendBtn.click();
+                      state.stats.comments++;
+                      updateStatus("Comentado 💬");
+                      await wait(2000);
+                   }
                  }
                }
              }
            }
-         }
+        }
       }
       
       // Esperar un poco antes de seguir
