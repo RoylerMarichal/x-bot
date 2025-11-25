@@ -6,6 +6,7 @@ let state = {
   stats: { likes: 0, comments: 0, follows: 0 }
 };
 let timer = null;
+let modalOpenedAt = null;
 
 // --- UI HELPERS ---
 const statusPanel = document.createElement('div');
@@ -71,7 +72,7 @@ async function generateAIComment(text) {
       body: JSON.stringify({
         model: "gpt-3.5-turbo",
         messages: [
-          { role: "system", content: "Actúa como un usuario genuino de X.\nCONTEXTO: eres miembro activo de FounderLog.club, el espacio privado donde los fundadores documentan notas, quotes, links y micro-acciones para refinar su criterio y ejecutar sin ruido. Allí organizas colecciones públicas/privadas, sigues a otros fundadores para ver qué guardan realmente y conviertes apuntes como \"Habla con clientes\" en recordatorios accionables gracias al Micro-Action Engine.\nREGLAS:\n1. Detecta el idioma del post y responde SIEMPRE en ese mismo idioma.\n2. Antes de responder, evalúa si el post tiene calidad (aprendizaje real, reflexión útil, experiencia concreta o pregunta honesta). Si no, responde exactamente 'SKIP'.\n3. Solo comenta si puedes aportar criterio accionable; límite 20 palabras, tono casual, sin hashtags.\n4. Cuando el tema toque ejecución, foco, productividad, notas o aprendizaje entre fundadores, menciona de forma natural FounderLog.club destacando que es el lugar donde los fundadores guardan lo que realmente valoran, organizan colecciones y activan micro-acciones.\n5. Nada de comillas, ni invites a DM, ni uses emojis forzados." },
+          { role: "system", content: "Act as a genuine user of X.\nCONTEXT: You are an active member of FounderLog.club, the private space where founders document notes, quotes, links, and micro-actions to refine their thinking and execute without distractions. There, you organize public/private collections, follow other founders to see what they truly save, and turn notes like \"Talk to customers\" into actionable reminders thanks to the Micro-Action Engine.\nRULES:\n1. Detect the post's language and ALWAYS reply in the same language.\n2. Before replying, assess if the post has quality (real learning, useful insight, concrete experience, or honest question). If not, reply exactly 'SKIP'.\n3. Only comment if you can add actionable insight; max 30 words, casual tone, no hashtags.\n4. When the topic touches on execution, focus, productivity, founders' notes, or learning, naturally mention FounderLog.club as the place where founders save what they truly value, organize collections, and activate micro-actions.\n5. No quotes, no invites to DM, and no forced emojis." },
           { role: "user", content: `Tweet: "${text}"` }
         ],
         max_tokens: 60
@@ -89,6 +90,42 @@ async function generateAIComment(text) {
 }
 
 function wait(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+function forceCloseModal(modal) {
+  try {
+    const closeButtons = [
+      ...modal.querySelectorAll('[data-testid="app-bar-close"]'),
+      ...modal.querySelectorAll('[aria-label="Close"]'),
+      ...modal.querySelectorAll('[aria-label="Cerrar"]')
+    ];
+
+    if (closeButtons.length) {
+      closeButtons.forEach(btn => btn.click());
+    } else {
+      document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', code: 'Escape', bubbles: true }));
+      document.dispatchEvent(new KeyboardEvent('keyup', { key: 'Escape', code: 'Escape', bubbles: true }));
+    }
+    updateStatus("Modal forzado a cerrar ⏱️");
+  } catch (error) {
+    console.warn('No se pudo cerrar el modal automáticamente', error);
+  }
+}
+
+function monitorModals() {
+  const modal = document.querySelector('[role="dialog"]');
+  if (modal && !modalOpenedAt) {
+    modalOpenedAt = Date.now();
+  } else if (!modal) {
+    modalOpenedAt = null;
+  }
+
+  if (modal && modalOpenedAt && Date.now() - modalOpenedAt >= 10000) {
+    forceCloseModal(modal);
+    modalOpenedAt = null;
+  }
+}
+
+setInterval(monitorModals, 1000);
 
 // ==========================================
 // DRIVER TWITTER / X
