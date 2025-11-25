@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "X-Bot Auto Liker",
   "version": "1.0",
-  "description": "Automatiza likes, comentarios y follows en X.com (Twitter).",
+  "description": "Automates likes, comments, and follows on X.com (Twitter).",
   "permissions": [
     "activeTab",
     "scripting",
